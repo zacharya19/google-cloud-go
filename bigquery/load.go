@@ -45,6 +45,9 @@ type LoadConfig struct {
 
 	// Custom encryption configuration (e.g., Cloud KMS keys).
 	DestinationEncryptionConfig *EncryptionConfig
+
+	// SchemaUpdateOptions allows to update table schema
+	SchemaUpdateOptions SchemaUpdateOptions
 }
 
 func (l *LoadConfig) toBQ() (*bq.JobConfiguration, io.Reader) {
@@ -56,6 +59,7 @@ func (l *LoadConfig) toBQ() (*bq.JobConfiguration, io.Reader) {
 			DestinationTable:                   l.Dst.toBQ(),
 			TimePartitioning:                   l.TimePartitioning.toBQ(),
 			DestinationEncryptionConfiguration: l.DestinationEncryptionConfig.toBQ(),
+			SchemaUpdateOptions:                []string(l.SchemaUpdateOptions),
 		},
 	}
 	media := l.Src.populateLoadConfig(config.Load)
@@ -70,6 +74,7 @@ func bqToLoadConfig(q *bq.JobConfiguration, c *Client) *LoadConfig {
 		Dst:                         bqToTable(q.Load.DestinationTable, c),
 		TimePartitioning:            bqToTimePartitioning(q.Load.TimePartitioning),
 		DestinationEncryptionConfig: bqToEncryptionConfig(q.Load.DestinationEncryptionConfiguration),
+		SchemaUpdateOptions:         SchemaUpdateOptions(q.Load.SchemaUpdateOptions),
 	}
 	var fc *FileConfig
 	if len(q.Load.SourceUris) == 0 {

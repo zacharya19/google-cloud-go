@@ -26,6 +26,7 @@ import (
 
 // Schema describes the fields in a table or query result.
 type Schema []*FieldSchema
+type SchemaUpdateOptions []string
 
 type FieldSchema struct {
 	// The field name.
